@@ -16,9 +16,6 @@ class Protobuf260 < Formula
   # this will double the build time approximately if enabled
   option "with-check", "Run build-time check"
 
-  option :universal
-  option :cxx11
-
   option "without-python", "Build without python support"
   depends_on :python => :recommended if MacOS.version <= :snow_leopard
 
