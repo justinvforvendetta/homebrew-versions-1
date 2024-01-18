@@ -80,6 +80,7 @@ def install
     EOS
   end
 
+  
 __END__
 diff --git a/src/google/protobuf/descriptor.h b/src/google/protobuf/descriptor.h
 index 67afc77..504d5fe 100644
