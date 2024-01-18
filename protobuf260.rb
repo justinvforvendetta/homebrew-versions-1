@@ -10,12 +10,6 @@ class Protobuf260 < Formula
     # https://github.com/google/protobuf/issues/549
     patch :p1, :DATA
   end
-  bottle do
-    sha256 "53b6c7640cf6cf19afef8710f26fe4a101340a89f09b2d05336dfc6b049141fa" => :yosemite
-    sha256 "90e7758986b353281bce35836c358035c520e8ace182d72a1751a61a8607fa7d" => :mavericks
-    sha256 "3da3651216bd105e9611fa14ecffb591eebb20c79b261f5038d11f812f851137" => :mountain_lion
-  end
-
 
   conflicts_with "protobuf", :because => "Differing versions of same formula"
 
