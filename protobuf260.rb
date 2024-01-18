@@ -54,7 +54,6 @@ class Protobuf260 < Formula
     # https://github.com/Homebrew/homebrew/issues/9279
     # http://code.google.com/p/protobuf/source/browse/trunk/configure.ac#61
     ENV.prepend "CXXFLAGS", "-DNDEBUG"
-    ENV.cxx11 if build.cxx11?
 
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
            "--prefix=#{prefix}",
