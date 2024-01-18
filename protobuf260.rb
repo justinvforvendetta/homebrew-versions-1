@@ -71,8 +71,6 @@ def install
       pythons.each do |python|
         system python, *Language::Python.setup_install_args(prefix, python), "--cpp_implementation"
       end
-    end
-  end
 
   def caveats; <<-EOS.undent
     Editor support and examples have been installed to:
