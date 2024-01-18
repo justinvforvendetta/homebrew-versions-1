@@ -48,44 +48,29 @@ class Protobuf260 < Formula
     sha256 "47959d0651c32102c10ad919b8a0ffe0ae85f44b8457ddcf2bdc0358fb03dc29"
   end
 
-  def install
+def install
     # Don't build in debug mode. See:
     # https://github.com/Homebrew/homebrew/issues/9279
-    # http://code.google.com/p/protobuf/source/browse/trunk/configure.ac#61
+    # https://github.com/protocolbuffers/protobuf/blob/5c24564811c08772d090305be36fae82d8f12bbe/configure.ac#L61
     ENV.prepend "CXXFLAGS", "-DNDEBUG"
     ENV.cxx11
 
-    system "./configure", "--disable-debug", "--disable-dependency-tracking",
-           "--prefix=#{prefix}",
-           "--with-zlib"
+    system "./autogen.sh" if build.head?
+    system "./configure", *std_configure_args, "--with-zlib", "--with-pic"
     system "make"
-    system "make", "check" if (build.with? "check") || build.bottle?
     system "make", "install"
 
     # Install editor support and examples
-    doc.install "editors", "examples"
+    pkgshare.install "editors/proto.vim", "examples"
+    elisp.install "editors/protobuf-mode.el"
 
-    if build.with? "python"
-      # google-apputils is a build-time dependency
-      ENV.prepend_create_path "PYTHONPATH", buildpath/"homebrew/lib/python2.7/site-packages"
-      %w[six python-dateutil pytz python-gflags google-apputils].each do |package|
-        resource(package).stage do
-          system "python", *Language::Python.setup_install_args(buildpath/"homebrew")
-        end
+    ENV.append_to_cflags "-I#{include}"
+    ENV.append_to_cflags "-L#{lib}"
+
+    cd "python" do
+      pythons.each do |python|
+        system python, *Language::Python.setup_install_args(prefix, python), "--cpp_implementation"
       end
-      # google is a namespace package and .pth files aren't processed from
-      # PYTHONPATH
-      touch buildpath/"homebrew/lib/python2.7/site-packages/google/__init__.py"
-      chdir "python" do
-        ENV.append_to_cflags "-I#{include}"
-        ENV.append_to_cflags "-L#{lib}"
-        args = Language::Python.setup_install_args libexec
-        args << "--cpp_implementation"
-        system "python", *args
-      end
-      site_packages = "lib/python2.7/site-packages"
-      pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
-      (prefix/site_packages/"homebrew-protobuf.pth").write pth_contents
     end
   end
 
@@ -94,23 +79,6 @@ class Protobuf260 < Formula
       #{doc}
     EOS
   end
-
-  test do
-    testdata =
-      <<-EOS.undent
-        package test;
-        message TestCase {
-          required string name = 4;
-        }
-        message Test {
-          repeated TestCase case = 1;
-        }
-        EOS
-    (testpath/"test.proto").write(testdata)
-    system bin/"protoc", "test.proto", "--cpp_out=."
-    system "python", "-c", "import google.protobuf" if build.with? "python"
-  end
-end
 
 __END__
 diff --git a/src/google/protobuf/descriptor.h b/src/google/protobuf/descriptor.h
